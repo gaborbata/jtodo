@@ -1,0 +1,3 @@
+[submodule "src/main/resources/todo"]
+	path = src/main/resources/todo
+	url = https://github.com/gaborbata/todo.git
