@@ -141,7 +141,13 @@ public class JTodo extends JFrame {
     }
 
     private String convertToHtml(String text) {
-        String html = text.replace("\n", "<br>").replace("\u001B[0m", "</font>").replace(" ", "&nbsp;");
+        String html = text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\n", "<br>")
+            .replace("\u001B[0m", "</font>")
+            .replace(" ", "&nbsp;");
         for (var entry : COLOR_CODES.entrySet()) {
             html = html.replace("\u001B[" + entry.getValue() + "m", "<font color='" + entry.getKey() + "'>");
         }
