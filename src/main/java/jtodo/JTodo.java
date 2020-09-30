@@ -114,7 +114,6 @@ public class JTodo extends JFrame {
                     editorPane.setText(convertToHtml(stringWriter.toString()));
                 }
                 textField.setText("");
-
             } catch (Exception e) {
                 editorPane.setText(String.valueOf(e.getMessage()));
             }

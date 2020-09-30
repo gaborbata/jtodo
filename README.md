@@ -2,6 +2,8 @@
 
 Experimental Java/Jruby front-end for https://github.com/gaborbata/todo
 
+![jtodo](https://raw.githubusercontent.com/gaborbata/jtodo/master/jtodo.png)
+
 Requires Java 11
 
 Build: `mvn clean package`
