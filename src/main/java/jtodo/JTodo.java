@@ -63,7 +63,7 @@ public class JTodo extends JFrame {
     private static final int FONT_SIZE = 15;
     private static final int BORDER_SIZE = 5;
     private static final String PREFERRED_FONT = "Consolas";
-    private static final String APP_NAME = "jtodo";
+    private static final String APP_NAME = "todo";
 
     private static final Map<String, String> COLOR_CODES = Map.of(
             "#2c3e50", "30", // balack
