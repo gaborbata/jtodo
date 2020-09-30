@@ -1,6 +1,6 @@
-# jtodo
+# jtodo ![Java CI with Maven](https://github.com/gaborbata/jtodo/workflows/Java%20CI%20with%20Maven/badge.svg)
 
-Experimental Java front-end for https://github.com/gaborbata/todo
+Experimental Java/Jruby front-end for https://github.com/gaborbata/todo
 
 Requires Java 11
 
