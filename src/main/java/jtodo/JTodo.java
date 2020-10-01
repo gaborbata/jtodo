@@ -137,6 +137,7 @@ public class JTodo extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
         textField.requestFocus();
+        repaint();
     }
 
     private String convertToHtml(String text) {
