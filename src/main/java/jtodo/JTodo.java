@@ -34,6 +34,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class JTodo extends JFrame {
                 stringWriter.getBuffer().setLength(0);
                 List<String> query = textField.getText().isEmpty() ? List.of() : List.of(textField.getText().split("\\s+"));
                 if ("repl".equals(query.stream().findFirst().orElse(""))) {
-                    editorPane.setText("repl is not supported in " + APP_NAME);
+                    editorPane.setText("repl is not supported in this frontend of " + APP_NAME);
                 } else {
                     scriptingContainer.callMethod(receiver, "read", query);
                     editorPane.setText(convertToHtml(stringWriter.toString()));
@@ -141,8 +142,8 @@ public class JTodo extends JFrame {
     }
 
     private String convertToHtml(String text) {
-        String html = text
-            .replace("&", "&amp;")
+        String html = new String(text.getBytes(), StandardCharsets.UTF_8);
+        html = html.replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
             .replace("\n", "<br>")
