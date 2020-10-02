@@ -103,7 +103,7 @@ public class JTodo extends JFrame {
 
         var textField = new JTextField();
 
-        var enterButton = new JButton("Search");
+        var enterButton = new JButton("Execute");
         enterButton.addActionListener(event -> {
             try {
                 stringWriter.getBuffer().setLength(0);
