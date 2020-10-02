@@ -74,7 +74,7 @@ public class JTodo extends JFrame {
             "#3498db", "34", // blue
             "#9b59b6", "35", // magenta
             "#1aacac", "36", // cyan
-            "#ecf0f1", "37" // white
+            "#bdc3c7", "37" // white
     );
 
     public JTodo() {
@@ -107,7 +107,7 @@ public class JTodo extends JFrame {
         enterButton.addActionListener(event -> {
             try {
                 stringWriter.getBuffer().setLength(0);
-                List<String> query = textField.getText().isEmpty() ? List.of() : List.of(textField.getText().split("\\s+"));
+                var query = textField.getText().isEmpty() ? List.<String>of() : List.of(textField.getText().split("\\s+"));
                 if ("repl".equals(query.stream().findFirst().orElse(""))) {
                     editorPane.setText("repl is not supported in this frontend of " + APP_NAME);
                 } else {
@@ -142,7 +142,7 @@ public class JTodo extends JFrame {
     }
 
     private String convertToHtml(String text) {
-        String html = new String(text.getBytes(), StandardCharsets.UTF_8);
+        var html = new String(text.getBytes(), StandardCharsets.UTF_8);
         html = html.replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
