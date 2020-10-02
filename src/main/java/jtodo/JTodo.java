@@ -45,6 +45,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -101,6 +102,7 @@ public class JTodo extends JFrame {
 
         var scrollPane = new JScrollPane(editorPane);
 
+        var label = new JLabel("Command");
         var textField = new JTextField();
 
         var enterButton = new JButton("Execute");
@@ -122,7 +124,8 @@ public class JTodo extends JFrame {
 
         var box = Box.createHorizontalBox();
         box.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
-        box.add(Box.createHorizontalGlue());
+        box.add(label);
+        box.add(Box.createHorizontalStrut(BORDER_SIZE));
         box.add(textField);
         box.add(Box.createHorizontalStrut(BORDER_SIZE));
         box.add(enterButton);
@@ -144,11 +147,11 @@ public class JTodo extends JFrame {
     private String convertToHtml(String text) {
         var html = new String(text.getBytes(), StandardCharsets.UTF_8);
         html = html.replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\n", "<br>")
-            .replace("\u001B[0m", "</font>")
-            .replace(" ", "&nbsp;");
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\n", "<br>")
+                .replace("\u001B[0m", "</font>")
+                .replace(" ", "&nbsp;");
         for (var entry : COLOR_CODES.entrySet()) {
             html = html.replace("\u001B[" + entry.getValue() + "m", "<font color='" + entry.getKey() + "'>");
         }
