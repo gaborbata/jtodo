@@ -30,6 +30,7 @@ package jtodo;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -65,6 +66,7 @@ public class JTodo extends JFrame {
     private static final int FONT_SIZE = 15;
     private static final int BORDER_SIZE = 5;
     private static final int COMMAND_HISTORY_SIZE = 5;
+    private static final double COLOR_CHANGE_FACTOR = 0.85;
     private static final String PREFERRED_FONT = "Consolas";
     private static final String APP_NAME = "todo";
 
@@ -100,6 +102,7 @@ public class JTodo extends JFrame {
         outputPane.setContentType("text/html");
         outputPane.setFont(new Font(fontName, Font.BOLD, FONT_SIZE));
         outputPane.setText(convertToHtml(stringWriter.toString()));
+        outputPane.setBackground(darkerColor(outputPane.getBackground()));
 
         var scrollPane = new JScrollPane(outputPane);
 
@@ -167,6 +170,13 @@ public class JTodo extends JFrame {
             html = html.replace("\u001B[" + entry.getValue() + "m", "<font color='" + entry.getKey() + "'>");
         }
         return html;
+    }
+
+    private Color darkerColor(Color color) {
+        return new Color(Math.max((int) (color.getRed() * COLOR_CHANGE_FACTOR), 0),
+                Math.max((int) (color.getGreen() * COLOR_CHANGE_FACTOR), 0),
+                Math.max((int) (color.getBlue() * COLOR_CHANGE_FACTOR), 0),
+                color.getAlpha());
     }
 
     public static void main(String[] args) {
