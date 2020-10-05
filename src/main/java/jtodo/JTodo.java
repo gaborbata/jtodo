@@ -43,11 +43,11 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -64,6 +64,7 @@ public class JTodo extends JFrame {
     private static final int WINDOW_HEIGHT = 500;
     private static final int FONT_SIZE = 15;
     private static final int BORDER_SIZE = 5;
+    private static final int COMMAND_HISTORY_SIZE = 5;
     private static final String PREFERRED_FONT = "Consolas";
     private static final String APP_NAME = "todo";
 
@@ -94,53 +95,63 @@ public class JTodo extends JFrame {
                 .findFirst()
                 .orElse(Font.MONOSPACED);
 
-        var editorPane = new JEditorPane();
-        editorPane.setEditable(false);
-        editorPane.setContentType("text/html");
-        editorPane.setFont(new Font(fontName, Font.BOLD, FONT_SIZE));
-        editorPane.setText(convertToHtml(stringWriter.toString()));
+        var outputPane = new JEditorPane();
+        outputPane.setEditable(false);
+        outputPane.setContentType("text/html");
+        outputPane.setFont(new Font(fontName, Font.BOLD, FONT_SIZE));
+        outputPane.setText(convertToHtml(stringWriter.toString()));
 
-        var scrollPane = new JScrollPane(editorPane);
+        var scrollPane = new JScrollPane(outputPane);
 
-        var label = new JLabel("Command");
-        var textField = new JTextField();
+        var commandLabel = new JLabel("Command");
+        var commandField = new JComboBox<String>(new String[]{"help", "list :done", "list :active", "list :all"});
+        commandField.setEditable(true);
+        commandField.getEditor().setItem("");
 
-        var enterButton = new JButton("Execute");
-        enterButton.addActionListener(event -> {
+        var executeButton = new JButton("Execute");
+        executeButton.addActionListener(event -> {
             try {
                 stringWriter.getBuffer().setLength(0);
-                var query = textField.getText().isEmpty() ? List.<String>of() : List.of(textField.getText().split("\\s+"));
-                if ("repl".equals(query.stream().findFirst().orElse(""))) {
-                    editorPane.setText("repl is not supported in this frontend of " + APP_NAME);
+                var commandFieldText = String.valueOf(commandField.getEditor().getItem()).trim();
+                var command = commandFieldText.isEmpty() ? List.<String>of() : List.of(commandFieldText.split("\\s+"));
+                if ("repl".equals(command.stream().findFirst().orElse(""))) {
+                    outputPane.setText("repl is not supported in this frontend of " + APP_NAME);
                 } else {
-                    scriptingContainer.callMethod(receiver, "read", query);
-                    editorPane.setText(convertToHtml(stringWriter.toString()));
+                    scriptingContainer.callMethod(receiver, "read", command);
+                    outputPane.setText(convertToHtml(stringWriter.toString()));
                 }
-                textField.setText("");
+                if (!commandFieldText.isEmpty()) {
+                    commandField.removeItem(commandFieldText);
+                    if (commandField.getModel().getSize() >= COMMAND_HISTORY_SIZE) {
+                        commandField.removeItemAt(0);
+                    }
+                    commandField.addItem(commandFieldText);
+                    commandField.getEditor().setItem("");
+                }
             } catch (Exception e) {
-                editorPane.setText(String.valueOf(e.getMessage()));
+                outputPane.setText(String.valueOf(e.getMessage()));
             }
         });
 
         var box = Box.createHorizontalBox();
         box.setBorder(BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE));
-        box.add(label);
+        box.add(commandLabel);
         box.add(Box.createHorizontalStrut(BORDER_SIZE));
-        box.add(textField);
+        box.add(commandField);
         box.add(Box.createHorizontalStrut(BORDER_SIZE));
-        box.add(enterButton);
+        box.add(executeButton);
 
         add(scrollPane);
         add(box, BorderLayout.PAGE_END);
 
-        SwingUtilities.getRootPane(enterButton).setDefaultButton(enterButton);
+        SwingUtilities.getRootPane(executeButton).setDefaultButton(executeButton);
 
         setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        textField.requestFocus();
+        commandField.requestFocus();
         repaint();
     }
 
