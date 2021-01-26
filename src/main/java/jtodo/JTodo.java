@@ -36,7 +36,6 @@ import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -63,11 +62,10 @@ public class JTodo extends JFrame {
     private static final Logger LOG = Logger.getLogger(JTodo.class.getName());
     private static final int WINDOW_WIDTH = 700;
     private static final int WINDOW_HEIGHT = 500;
-    private static final int FONT_SIZE = 15;
+    private static final int FONT_SIZE = 14;
     private static final int BORDER_SIZE = 5;
     private static final int COMMAND_HISTORY_SIZE = 5;
     private static final double COLOR_CHANGE_FACTOR = 0.8;
-    private static final String PREFERRED_FONT = "Consolas";
     private static final String APP_NAME = "todo";
 
     private static final Map<String, String> COLOR_CODES = Map.of(
@@ -81,6 +79,11 @@ public class JTodo extends JFrame {
             "#bdc3c7", "37"  // white
     );
 
+    static {
+        System.setProperty("awt.useSystemAAFontSettings", "on");
+        System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
+    }
+
     public JTodo() {
         super(APP_NAME);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -92,26 +95,28 @@ public class JTodo extends JFrame {
         scriptingContainer.setWriter(stringWriter);
         var receiver = scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/bin/todo.rb");
 
-        var fontName = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
-                .filter(font -> PREFERRED_FONT.equalsIgnoreCase(font))
-                .findFirst()
-                .orElse(Font.MONOSPACED);
+        var font = loadFont();
 
         var outputPane = new JEditorPane();
         outputPane.setEditable(false);
         outputPane.setContentType("text/html");
-        outputPane.setFont(new Font(fontName, Font.BOLD, FONT_SIZE));
+        outputPane.setFont(font);
         outputPane.setText(convertToHtml(stringWriter.toString()));
         outputPane.setBackground(darkerColor(outputPane.getBackground()));
 
         var scrollPane = new JScrollPane(outputPane);
 
         var commandLabel = new JLabel("Command");
+        commandLabel.setFont(font);
+
         var commandField = new JComboBox<String>(new String[]{"help", "list :done", "list :active", "list :all"});
+        commandField.setFont(font);
         commandField.setEditable(true);
         commandField.getEditor().setItem("");
 
         var executeButton = new JButton("Execute");
+        executeButton.setFont(font);
+
         executeButton.addActionListener(event -> {
             try {
                 stringWriter.getBuffer().setLength(0);
@@ -159,6 +164,19 @@ public class JTodo extends JFrame {
         repaint();
     }
 
+    private Font loadFont() {
+        Font font;
+        try {
+            var fontStream = JTodo.class.getClassLoader().getResourceAsStream("font/RobotoMono-Medium.ttf");
+            font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont((float) FONT_SIZE);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, e.getMessage());
+            font = new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE);
+        }
+        return font;
+    }
+
     private String convertToHtml(String text) {
         var html = new String(text.getBytes(), StandardCharsets.UTF_8);
         html = html.replace("&", "&amp;")
@@ -182,7 +200,7 @@ public class JTodo extends JFrame {
 
     public static void main(String[] args) {
         try {
-            UIManager.put("Button.arc", 0);
+            UIManager.put("Button.arc", 4);
             FlatDarkLaf.install();
             UIManager.setLookAndFeel(new FlatDarkLaf());
         } catch (UnsupportedLookAndFeelException e) {
