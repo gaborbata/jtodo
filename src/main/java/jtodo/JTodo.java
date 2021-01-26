@@ -1,7 +1,7 @@
 /*
  * JTodo
  *
- * Copyright (c) 2020 Gabor Bata
+ * Copyright (c) 2020-2021 Gabor Bata
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class JTodo extends JFrame {
     private static final int FONT_SIZE = 15;
     private static final int BORDER_SIZE = 5;
     private static final int COMMAND_HISTORY_SIZE = 5;
-    private static final double COLOR_CHANGE_FACTOR = 0.85;
+    private static final double COLOR_CHANGE_FACTOR = 0.8;
     private static final String PREFERRED_FONT = "Consolas";
     private static final String APP_NAME = "todo";
 
@@ -78,7 +78,7 @@ public class JTodo extends JFrame {
             "#3498db", "34", // blue
             "#9b59b6", "35", // magenta
             "#1aacac", "36", // cyan
-            "#bdc3c7", "37" // white
+            "#bdc3c7", "37"  // white
     );
 
     public JTodo() {
@@ -121,7 +121,8 @@ public class JTodo extends JFrame {
                     outputPane.setText("repl is not supported in this frontend of " + APP_NAME);
                 } else {
                     scriptingContainer.callMethod(receiver, "read", command);
-                    outputPane.setText(convertToHtml(stringWriter.toString()));
+                    var outputHeader = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";
+                    outputPane.setText(convertToHtml(outputHeader + stringWriter.toString()));
                 }
                 if (!commandFieldText.isEmpty()) {
                     commandField.removeItem(commandFieldText);
