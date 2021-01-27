@@ -112,6 +112,7 @@ public class JTodo extends JFrame {
         var commandField = new JComboBox<String>(new String[]{"help", "list :done", "list :active", "list :all"});
         commandField.setFont(font);
         commandField.setEditable(true);
+        commandField.setPrototypeDisplayValue(APP_NAME);
         commandField.getEditor().setItem("");
 
         var executeButton = new JButton("Execute");
