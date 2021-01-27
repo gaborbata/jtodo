@@ -101,7 +101,7 @@ public class JTodo extends JFrame {
         outputPane.setEditable(false);
         outputPane.setContentType("text/html");
         outputPane.setFont(font);
-        outputPane.setText(convertToHtml(stringWriter.toString()));
+        outputPane.setText(convertToHtml(stringWriter.toString(), true));
         outputPane.setBackground(darkerColor(outputPane.getBackground()));
 
         var scrollPane = new JScrollPane(outputPane);
@@ -126,8 +126,8 @@ public class JTodo extends JFrame {
                     outputPane.setText("repl is not supported in this frontend of " + APP_NAME);
                 } else {
                     scriptingContainer.callMethod(receiver, "read", command);
-                    var outputHeader = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";
-                    outputPane.setText(convertToHtml(outputHeader + stringWriter.toString()));
+                    var header = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";
+                    outputPane.setText(convertToHtml(header, false) + convertToHtml(stringWriter.toString(), true));
                 }
                 if (!commandFieldText.isEmpty()) {
                     commandField.removeItem(commandFieldText);
@@ -177,8 +177,8 @@ public class JTodo extends JFrame {
         return font;
     }
 
-    private String convertToHtml(String text) {
-        var html = new String(text.getBytes(), StandardCharsets.UTF_8);
+    private String convertToHtml(String text, boolean convertUnicode) {
+        var html = convertUnicode ? new String(text.getBytes(), StandardCharsets.UTF_8) : text;
         html = html.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
