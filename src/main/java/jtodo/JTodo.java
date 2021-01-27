@@ -60,8 +60,8 @@ import org.jruby.embed.ScriptingContainer;
 public class JTodo extends JFrame {
 
     private static final Logger LOG = Logger.getLogger(JTodo.class.getName());
-    private static final int WINDOW_WIDTH = 700;
-    private static final int WINDOW_HEIGHT = 500;
+    private static final int WINDOW_WIDTH = 720;
+    private static final int WINDOW_HEIGHT = 480;
     private static final int FONT_SIZE = 14;
     private static final int BORDER_SIZE = 5;
     private static final int COMMAND_HISTORY_SIZE = 5;
