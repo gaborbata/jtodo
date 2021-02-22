@@ -34,14 +34,17 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
@@ -69,7 +72,7 @@ public class JTodo extends JFrame {
     private static final String APP_NAME = "todo";
 
     private static final Map<String, String> COLOR_CODES = Map.of(
-            "#2c3e50", "30", // balack
+            "#2c3e50", "30", // black
             "#e74c3c", "31", // red
             "#27ae60", "32", // green
             "#f39c12", "33", // yellow
@@ -86,6 +89,16 @@ public class JTodo extends JFrame {
 
     public JTodo() {
         super(APP_NAME);
+
+        try {
+            var image = new ImageIcon(JTodo.class.getClassLoader().getResource("image/jtodo.png")).getImage();
+            setIconImages(Stream.of(16, 20, 32, 40, 64, 80, 128, 160)
+                    .map(size -> image.getScaledInstance(size, size, Image.SCALE_SMOOTH))
+                    .collect(Collectors.toList()));
+        } catch (Exception e) {
+            LOG.warning("Could not load image icon: " + e.getMessage());
+        }
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -125,6 +138,8 @@ public class JTodo extends JFrame {
                 var command = commandFieldText.isEmpty() ? List.<String>of() : List.of(commandFieldText.split("\\s+"));
                 if ("repl".equals(command.stream().findFirst().orElse(""))) {
                     outputPane.setText("repl is not supported in this frontend of " + APP_NAME);
+                } if (":samegame".equals(command.stream().findFirst().orElse(""))) {
+                    SameGame.main(null);
                 } else {
                     scriptingContainer.callMethod(receiver, "read", command);
                     var header = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";
@@ -172,7 +187,7 @@ public class JTodo extends JFrame {
             font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont((float) FONT_SIZE);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
         } catch (Exception e) {
-            LOG.log(Level.WARNING, e.getMessage());
+            LOG.warning("Could not load font: " + e.getMessage());
             font = new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE);
         }
         return font;
@@ -206,7 +221,7 @@ public class JTodo extends JFrame {
             JFrame.setDefaultLookAndFeelDecorated(true);
             UIManager.setLookAndFeel(new FlatDarkLaf());
         } catch (UnsupportedLookAndFeelException e) {
-            LOG.log(Level.SEVERE, e.getMessage());
+            LOG.warning("Could not set look and feel: " + e.getMessage());
         }
         SwingUtilities.invokeLater(JTodo::new);
     }
