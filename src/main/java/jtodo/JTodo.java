@@ -29,6 +29,7 @@
 package jtodo;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.udojava.evalex.Expression;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -136,10 +137,15 @@ public class JTodo extends JFrame {
                 stringWriter.getBuffer().setLength(0);
                 var commandFieldText = String.valueOf(commandField.getEditor().getItem()).trim();
                 var command = commandFieldText.isEmpty() ? List.<String>of() : List.of(commandFieldText.split("\\s+"));
-                if ("repl".equals(command.stream().findFirst().orElse(""))) {
+                var action = command.stream().findFirst().orElse("");
+                if ("repl".equals(action)) {
                     outputPane.setText("repl is not supported in this frontend of " + APP_NAME);
-                } if (":samegame".equals(command.stream().findFirst().orElse(""))) {
+                } else if (":samegame".equals(action)) {
                     SameGame.main(null);
+                } else if (":eval".equals(action)) {
+                    var expression = command.stream().skip(1).collect(Collectors.joining(" "));
+                    var result = new Expression(expression).setPrecision(10).eval().toPlainString();
+                    outputPane.setText(convertToHtml("eval> " + expression + "\n", false) + convertToHtml(result, false));
                 } else {
                     scriptingContainer.callMethod(receiver, "read", command);
                     var header = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";

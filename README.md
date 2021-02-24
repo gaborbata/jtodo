@@ -25,3 +25,4 @@ Maven is required to build the application, with the following command:
 * [todo](https://github.com/gaborbata/todo) - todo list manager inspired by [todo.txt](http://todotxt.org) using the [jsonl](http://jsonlines.org) format
 * [JRuby](https://github.com/jruby/jruby) - an implementation of the Ruby language on the JVM
 * [FlatLaf](https://github.com/JFormDesigner/FlatLaf) - Flat Look and Feel
+* [EvalEx](https://github.com/uklimaschewski/EvalEx) - mathematical expression evaluator
