@@ -34,7 +34,6 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
@@ -229,7 +228,7 @@ public final class SameGame extends JFrame implements MouseListener {
 
         if (!isMarked(x, y)) {
             for (int i = 0; i < table.length; i++) {
-                table[i] = table[i] < 0 ? -1 * table[i] : table[i];
+                table[i] = Math.abs(table[i]);
             }
             marked = mark(x, y, getColor(x, y));
         } else {
@@ -322,7 +321,6 @@ public final class SameGame extends JFrame implements MouseListener {
         try {
             var fontStream = SameGame.class.getClassLoader().getResourceAsStream("font/RobotoMono-Medium.ttf");
             f = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(14.0f);
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(f);
         } catch (Exception e) {
             f = new Font(Font.SANS_SERIF, Font.BOLD, 14);
         }

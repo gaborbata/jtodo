@@ -34,7 +34,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -123,7 +123,7 @@ public class JTodo extends JFrame {
         var commandLabel = new JLabel("Command");
         commandLabel.setFont(font);
 
-        var commandField = new JComboBox<String>(new String[]{"help", "list :done", "list :active", "list :all"});
+        var commandField = new JComboBox<String>(new String[]{"help", "list :done", "list :active", "list :all", ":eval 1+2"});
         commandField.setFont(font);
         commandField.setEditable(true);
         commandField.setPrototypeDisplayValue(APP_NAME);
@@ -144,7 +144,7 @@ public class JTodo extends JFrame {
                     SameGame.main(null);
                 } else if (":eval".equals(action)) {
                     var expression = command.stream().skip(1).collect(Collectors.joining(" "));
-                    var result = new Expression(expression).setPrecision(10).eval().toPlainString();
+                    var result = new Expression(expression).setPrecision(16).eval().toPlainString();
                     outputPane.setText(convertToHtml("eval> " + expression + "\n", false) + convertToHtml(result, false));
                 } else {
                     scriptingContainer.callMethod(receiver, "read", command);
@@ -152,15 +152,19 @@ public class JTodo extends JFrame {
                     outputPane.setText(convertToHtml(header, false) + convertToHtml(stringWriter.toString(), true));
                 }
                 if (!commandFieldText.isEmpty()) {
-                    commandField.removeItem(commandFieldText);
-                    if (commandField.getModel().getSize() >= COMMAND_HISTORY_SIZE) {
-                        commandField.removeItemAt(0);
-                    }
+                    commandField.setSelectedItem(null);
+                    var items = IntStream.range(0, commandField.getItemCount())
+                            .mapToObj(commandField::getItemAt)
+                            .filter(item -> !item.equals(commandFieldText))
+                            .limit(COMMAND_HISTORY_SIZE - 1)
+                            .collect(Collectors.toList());
+                    commandField.removeAllItems();
                     commandField.addItem(commandFieldText);
+                    items.forEach(commandField::addItem);
                     commandField.getEditor().setItem("");
                 }
             } catch (Exception e) {
-                outputPane.setText(String.valueOf(e.getMessage()));
+                outputPane.setText("ERROR: " + convertToHtml(String.valueOf(e.getMessage()), false));
             }
         });
 
@@ -191,7 +195,6 @@ public class JTodo extends JFrame {
         try {
             var fontStream = JTodo.class.getClassLoader().getResourceAsStream("font/RobotoMono-Medium.ttf");
             font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont((float) FONT_SIZE);
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
         } catch (Exception e) {
             LOG.warning("Could not load font: " + e.getMessage());
             font = new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE);
