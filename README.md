@@ -1,4 +1,4 @@
-# jtodo ![Java CI with Maven](https://github.com/gaborbata/jtodo/workflows/Java%20CI%20with%20Maven/badge.svg)
+# jtodo [![Java CI with Maven](https://github.com/gaborbata/jtodo/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/gaborbata/jtodo/actions/workflows/maven.yml)
 
 Experimental Java/JRuby front-end for [todo](https://github.com/gaborbata/todo)
 

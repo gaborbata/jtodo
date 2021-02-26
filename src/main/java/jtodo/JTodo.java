@@ -107,7 +107,8 @@ public class JTodo extends JFrame {
         var scriptingContainer = new ScriptingContainer();
         scriptingContainer.setOutput(stringWriter);
         scriptingContainer.setWriter(stringWriter);
-        var receiver = scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/bin/todo.rb");
+        scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/bin/todo.rb");
+        var receiver = scriptingContainer.runScriptlet("Todo.new");
 
         var font = loadFont();
 
@@ -123,7 +124,7 @@ public class JTodo extends JFrame {
         var commandLabel = new JLabel("Command");
         commandLabel.setFont(font);
 
-        var commandField = new JComboBox<String>(new String[]{"help", "list :done", "list :active", "list :all", ":eval 1+2"});
+        var commandField = new JComboBox<String>(new String[]{"help", "list :done", "list :active", "list :all", "eval 1+2"});
         commandField.setFont(font);
         commandField.setEditable(true);
         commandField.setPrototypeDisplayValue(APP_NAME);
@@ -140,14 +141,14 @@ public class JTodo extends JFrame {
                 var action = command.stream().findFirst().orElse("");
                 if ("repl".equals(action)) {
                     outputPane.setText("repl is not supported in this frontend of " + APP_NAME);
-                } else if (":samegame".equals(action)) {
+                } else if ("samegame".equals(action)) {
                     SameGame.main(null);
-                } else if (":eval".equals(action)) {
+                } else if ("eval".equals(action)) {
                     var expression = command.stream().skip(1).collect(Collectors.joining(" "));
                     var result = new Expression(expression).setPrecision(16).eval().toPlainString();
                     outputPane.setText(convertToHtml("eval> " + expression + "\n", false) + convertToHtml(result, false));
                 } else {
-                    scriptingContainer.callMethod(receiver, "read", command);
+                    scriptingContainer.callMethod(receiver, "execute", command);
                     var header = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";
                     outputPane.setText(convertToHtml(header, false) + convertToHtml(stringWriter.toString(), true));
                 }
