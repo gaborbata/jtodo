@@ -136,7 +136,7 @@ public class JTodo extends JFrame {
             try {
                 stringWriter.getBuffer().setLength(0);
                 var commandFieldText = String.valueOf(commandField.getEditor().getItem()).trim();
-                var command = commandFieldText.isEmpty() ? List.<String>of() : List.of(commandFieldText.split("\\s+"));
+                var command = commandFieldText.isEmpty() ? List.<String>of() : List.of(commandFieldText.split("[\\s\\xa0]+"));
                 var action = command.stream().findFirst().orElse("");
                 if ("repl".equals(action)) {
                     outputPane.setText("repl is not supported in this frontend of " + APP_NAME);
