@@ -12,7 +12,7 @@ On most platforms the application can be run with the following command:
 
 You can find the latest binaries under [releases](https://github.com/gaborbata/jtodo/releases).
 
-Requires Java 11 (or later).
+Requires Java 8 (or later).
 
 ## How to build
 

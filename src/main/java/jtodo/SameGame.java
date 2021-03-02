@@ -39,6 +39,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import static java.lang.String.format;
 import java.util.Random;
 import javax.swing.JComponent;
@@ -58,7 +59,7 @@ public final class SameGame extends JFrame implements MouseListener {
     private final Image[] tiles = new Image[colors.length * 2 - 1];
     private final Color statusBorder = new Color(0x3c3f41);
     private final Color statusBackground = new Color(colors[4]);
-    
+
     private final Color statusText = new Color(0xbdc3c7);
     private final Color canvasBackground = new Color(colors[4]);
     private final Font font = loadFont();
@@ -319,7 +320,7 @@ public final class SameGame extends JFrame implements MouseListener {
     private Font loadFont() {
         Font f;
         try {
-            var fontStream = SameGame.class.getClassLoader().getResourceAsStream("font/RobotoMono-Medium.ttf");
+            InputStream fontStream = SameGame.class.getClassLoader().getResourceAsStream("font/RobotoMono-Medium.ttf");
             f = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(14.0f);
         } catch (Exception e) {
             f = new Font(Font.SANS_SERIF, Font.BOLD, 14);
