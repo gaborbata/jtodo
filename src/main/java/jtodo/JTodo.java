@@ -124,7 +124,7 @@ public class JTodo extends JFrame {
         executeButton.addActionListener(this::handleEvent);
         executeButton.setEnabled(false);
 
-        JLabel commandLabel = new JLabel("Command");
+        JLabel commandLabel = new JLabel("todo>");
         commandLabel.setFont(font);
 
         Box box = Box.createHorizontalBox();
