@@ -2,7 +2,7 @@
 
 Experimental Java/JRuby front-end for [todo](https://github.com/gaborbata/todo)
 
-![jtodo](https://raw.githubusercontent.com/gaborbata/jtodo/master/jtodo.gif)
+![todo](https://raw.githubusercontent.com/gaborbata/todo/master/todo.gif)
 
 ## Usage
 
