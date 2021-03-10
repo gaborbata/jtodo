@@ -246,8 +246,7 @@ public class JTodo extends JFrame {
             scriptingContainer = new ScriptingContainer();
             scriptingContainer.setOutput(stringWriter);
             scriptingContainer.setWriter(stringWriter);
-            scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/bin/todo.rb");
-            receiver = scriptingContainer.runScriptlet("Todo.new");
+            receiver = scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/bin/todo.rb");
             return null;
         }
 
