@@ -167,7 +167,8 @@ public class JTodo extends JFrame {
                 String result = new Expression(expression).setPrecision(16).eval().toPlainString();
                 outputPane.setText(convertToHtml("eval> " + expression + "\n", false) + convertToHtml(result, false));
             } else {
-                scriptingContainer.callMethod(receiver, "execute", command);
+                Object commandArray = scriptingContainer.callMethod(scriptingContainer.get("Array"), "new", command);
+                scriptingContainer.callMethod(receiver, "execute", commandArray);
                 String header = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";
                 outputPane.setText(convertToHtml(header, false) + convertToHtml(stringWriter.toString(), true));
             }
