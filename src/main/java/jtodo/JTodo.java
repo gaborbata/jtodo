@@ -166,6 +166,18 @@ public class JTodo extends JFrame {
                 String expression = command.stream().skip(1).collect(Collectors.joining(" "));
                 String result = new Expression(expression).setPrecision(16).eval().toPlainString();
                 outputPane.setText(convertToHtml("eval> " + expression + "\n", false) + convertToHtml(result, false));
+            } else if ("version".equals(action)) {
+                Object gemSpec = scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/todo.gemspec");
+                String gemVersion = "Gem Specification\n" + Stream.of("name", "version", "date", "summary", "authors", "homepage", "license")
+                        .map(attribute -> String.format("%9s: %s", attribute, scriptingContainer.callMethod(gemSpec, attribute)))
+                        .collect(Collectors.joining("\n"));
+                String envVersion = "Environment\n" + Stream.of("RUBY_VERSION", "JRUBY_VERSION")
+                        .map(attribute -> String.format("%14s: %s", attribute, scriptingContainer.get(attribute)))
+                        .collect(Collectors.joining("\n"));
+                envVersion += "\n" + Stream.of("java.version", "java.vendor")
+                        .map(attribute -> String.format("%14s: %s", attribute.toUpperCase().replace(".", "_"), System.getProperties().getProperty(attribute)))
+                        .collect(Collectors.joining("\n"));
+                outputPane.setText(convertToHtml(gemVersion + "\n\n" + envVersion, false));
             } else {
                 Object commandArray = scriptingContainer.callMethod(scriptingContainer.get("Array"), "new", command);
                 scriptingContainer.callMethod(receiver, "execute", commandArray);
