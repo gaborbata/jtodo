@@ -114,7 +114,7 @@ public class JTodo extends JFrame {
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(font);
         addNewTab();
-        tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), format("[%d] %s", tabbedPane.getSelectedIndex() + 1, ":active"));
+        tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), ":active");
         tabbedPane.setEnabled(false);
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this::dispatchKeyEvent);
 
@@ -162,7 +162,7 @@ public class JTodo extends JFrame {
         try {
             stringWriter.getBuffer().setLength(0);
             String commandFieldText = String.valueOf(commandField.getEditor().getItem()).trim();
-            tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), format("[%d] %s", tabbedPane.getSelectedIndex() + 1, commandFieldText.isEmpty() ? ":active" : commandFieldText));
+            tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), commandFieldText.isEmpty() ? ":active" : commandFieldText);
             final List<String> command = commandFieldText.isEmpty() ? emptyList() : asList(commandFieldText.split("[\\s\\xa0]+"));
             String action = command.stream().findFirst().orElse("");
             if ("repl".equals(action)) {
@@ -176,14 +176,14 @@ public class JTodo extends JFrame {
             } else if ("version".equals(action)) {
                 Object gemSpec = scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/todo.gemspec");
                 final String gemVersion = "\u001B[33mGem Specification\u001B[0m\n" + Stream.of("name", "version", "date", "authors", "homepage", "license")
-                        .map(attribute -> String.format("\u001B[36m%14s:\u001B[0m %s", attribute, scriptingContainer.callMethod(gemSpec, attribute)))
+                        .map(attribute -> format("\u001B[36m%14s:\u001B[0m %s", attribute, scriptingContainer.callMethod(gemSpec, attribute)))
                         .collect(Collectors.joining("\n"));
                 final String envVersion = "\u001B[33mEnvironment\u001B[0m\n" + Stream.of("RUBY_VERSION", "JRUBY_VERSION")
-                        .map(attribute -> String.format("\u001B[36m%14s:\u001B[0m %s", attribute.toLowerCase().replace("_", " "), scriptingContainer.get(attribute)))
+                        .map(attribute -> format("\u001B[36m%14s:\u001B[0m %s", attribute.toLowerCase().replace("_", " "), scriptingContainer.get(attribute)))
                         .collect(Collectors.joining("\n"))
                         .concat("\n")
                         .concat(Stream.of("java.version", "java.vendor", "os.name")
-                                .map(attribute -> String.format("\u001B[36m%14s:\u001B[0m %s", attribute.replace(".", " "), System.getProperties().getProperty(attribute)))
+                                .map(attribute -> format("\u001B[36m%14s:\u001B[0m %s", attribute.replace(".", " "), System.getProperties().getProperty(attribute)))
                                 .collect(Collectors.joining("\n")));
                 getOutputPane()
                         .ifPresent(pane -> pane.setText(convertToHtml(gemVersion + "\n\n" + envVersion, false)));
@@ -215,10 +215,13 @@ public class JTodo extends JFrame {
         if (ctrlDown && e.getID() == KeyEvent.KEY_PRESSED && tabbedPane.isEnabled()) {
             if (e.getKeyCode() == KeyEvent.VK_T && tabbedPane.getTabCount() < 10) {
                 addNewTab();
+                return true;
             } else if (e.getKeyCode() == KeyEvent.VK_W && tabbedPane.getTabCount() > 1) {
                 tabbedPane.removeTabAt(tabbedPane.getSelectedIndex());
+                return true;
             } else if (e.getKeyCode() == KeyEvent.VK_TAB && tabbedPane.getTabCount() > 1) {
                 tabbedPane.setSelectedIndex((tabbedPane.getSelectedIndex() + 1) % tabbedPane.getTabCount());
+                return true;
             }
         }
         return false;
@@ -231,7 +234,7 @@ public class JTodo extends JFrame {
         outputPane.setFont(tabbedPane.getFont());
         outputPane.setBackground(new Color(0x303234));
         JScrollPane scrollPane = new JScrollPane(outputPane);
-        tabbedPane.addTab(format("[%d] empty", tabbedPane.getTabCount() + 1), scrollPane);
+        tabbedPane.addTab("empty", scrollPane);
         tabbedPane.setSelectedComponent(scrollPane);
     }
 
