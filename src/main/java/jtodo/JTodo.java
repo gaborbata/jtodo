@@ -35,15 +35,19 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.InputStream;
 import java.io.StringWriter;
+import static java.lang.String.format;
 import java.nio.charset.StandardCharsets;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -58,6 +62,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -71,8 +76,8 @@ import org.jruby.embed.ScriptingContainer;
 public class JTodo extends JFrame {
 
     private static final Logger LOGGER = Logger.getLogger(JTodo.class.getName());
-    private static final int WINDOW_WIDTH = 720;
-    private static final int WINDOW_HEIGHT = 480;
+    private static final int WINDOW_WIDTH = 800;
+    private static final int WINDOW_HEIGHT = 500;
     private static final int FONT_SIZE = 14;
     private static final int BORDER_SIZE = 5;
     private static final int COMMAND_HISTORY_SIZE = 5;
@@ -94,7 +99,7 @@ public class JTodo extends JFrame {
     }
 
     private final JComboBox<String> commandField;
-    private final JEditorPane outputPane;
+    private final JTabbedPane tabbedPane;
     private final JButton executeButton;
 
     private StringWriter stringWriter;
@@ -106,11 +111,12 @@ public class JTodo extends JFrame {
 
         Font font = loadFont();
 
-        outputPane = new JEditorPane();
-        outputPane.setEditable(false);
-        outputPane.setContentType("text/html");
-        outputPane.setFont(font);
-        outputPane.setBackground(new Color(0x303234));
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(font);
+        addNewTab();
+        tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), format("[%d] %s", tabbedPane.getSelectedIndex() + 1, ":active"));
+        tabbedPane.setEnabled(false);
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this::dispatchKeyEvent);
 
         commandField = new JComboBox<>(new String[]{"help", "list :done", "list :active", "list :all", "eval 1+2"});
         commandField.setFont(font);
@@ -136,13 +142,13 @@ public class JTodo extends JFrame {
         box.add(executeButton);
 
         setLayout(new BorderLayout());
-        add(new JScrollPane(outputPane));
+        add(tabbedPane);
         add(box, BorderLayout.PAGE_END);
 
         SwingUtilities.getRootPane(executeButton).setDefaultButton(executeButton);
 
         setApplicationIcon();
-        setDefaultCloseOperation(EXIT_ON_CLOSE);        
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         pack();
@@ -156,33 +162,35 @@ public class JTodo extends JFrame {
         try {
             stringWriter.getBuffer().setLength(0);
             String commandFieldText = String.valueOf(commandField.getEditor().getItem()).trim();
-            List<String> command = commandFieldText.isEmpty() ? emptyList() : asList(commandFieldText.split("[\\s\\xa0]+"));
+            tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), format("[%d] %s", tabbedPane.getSelectedIndex() + 1, commandFieldText.isEmpty() ? ":active" : commandFieldText));
+            final List<String> command = commandFieldText.isEmpty() ? emptyList() : asList(commandFieldText.split("[\\s\\xa0]+"));
             String action = command.stream().findFirst().orElse("");
             if ("repl".equals(action)) {
-                outputPane.setText("repl is not supported in this frontend of todo");
+                getOutputPane().ifPresent(pane -> pane.setText("repl is not supported in this frontend of todo-jsonl"));
             } else if ("samegame".equals(action)) {
                 SameGame.main(null);
             } else if ("eval".equals(action)) {
                 String expression = command.stream().skip(1).collect(Collectors.joining(" "));
                 String result = new Expression(expression).setPrecision(16).eval().toPlainString();
-                outputPane.setText(convertToHtml("eval> " + expression + "\n", false) + convertToHtml(result, false));
+                getOutputPane().ifPresent(pane -> pane.setText(convertToHtml(result, false)));
             } else if ("version".equals(action)) {
                 Object gemSpec = scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/todo.gemspec");
-                String gemVersion = "Gem Specification\n" + Stream.of("name", "version", "date", "summary", "authors", "homepage", "license")
-                        .map(attribute -> String.format("%9s: %s", attribute, scriptingContainer.callMethod(gemSpec, attribute)))
+                final String gemVersion = "\u001B[33mGem Specification\u001B[0m\n" + Stream.of("name", "version", "date", "authors", "homepage", "license")
+                        .map(attribute -> String.format("\u001B[36m%14s:\u001B[0m %s", attribute, scriptingContainer.callMethod(gemSpec, attribute)))
                         .collect(Collectors.joining("\n"));
-                String envVersion = "Environment\n" + Stream.of("RUBY_VERSION", "JRUBY_VERSION")
-                        .map(attribute -> String.format("%14s: %s", attribute, scriptingContainer.get(attribute)))
-                        .collect(Collectors.joining("\n"));
-                envVersion += "\n" + Stream.of("java.version", "java.vendor")
-                        .map(attribute -> String.format("%14s: %s", attribute.toUpperCase().replace(".", "_"), System.getProperties().getProperty(attribute)))
-                        .collect(Collectors.joining("\n"));
-                outputPane.setText(convertToHtml(gemVersion + "\n\n" + envVersion, false));
+                final String envVersion = "\u001B[33mEnvironment\u001B[0m\n" + Stream.of("RUBY_VERSION", "JRUBY_VERSION")
+                        .map(attribute -> String.format("\u001B[36m%14s:\u001B[0m %s", attribute.toLowerCase().replace("_", " "), scriptingContainer.get(attribute)))
+                        .collect(Collectors.joining("\n"))
+                        .concat("\n")
+                        .concat(Stream.of("java.version", "java.vendor", "os.name")
+                                .map(attribute -> String.format("\u001B[36m%14s:\u001B[0m %s", attribute.replace(".", " "), System.getProperties().getProperty(attribute)))
+                                .collect(Collectors.joining("\n")));
+                getOutputPane()
+                        .ifPresent(pane -> pane.setText(convertToHtml(gemVersion + "\n\n" + envVersion, false)));
             } else {
                 Object commandArray = scriptingContainer.callMethod(scriptingContainer.get("Array"), "new", command);
                 scriptingContainer.callMethod(receiver, "execute", commandArray);
-                String header = commandFieldText.isEmpty() ? "" : "todo> " + commandFieldText + "\n";
-                outputPane.setText(convertToHtml(header, false) + convertToHtml(stringWriter.toString(), true));
+                getOutputPane().ifPresent(pane -> pane.setText(convertToHtml(stringWriter.toString(), true)));
             }
             if (!commandFieldText.isEmpty()) {
                 commandField.setSelectedItem(null);
@@ -197,8 +205,34 @@ public class JTodo extends JFrame {
                 commandField.getEditor().setItem("");
             }
         } catch (Exception e) {
-            outputPane.setText("ERROR: " + convertToHtml(String.valueOf(e.getMessage()), false));
+            getOutputPane()
+                    .ifPresent(pane -> pane.setText("ERROR: " + convertToHtml(String.valueOf(e.getMessage()), false)));
         }
+    }
+
+    private boolean dispatchKeyEvent(KeyEvent e) {
+        boolean ctrlDown = (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0;
+        if (ctrlDown && e.getID() == KeyEvent.KEY_PRESSED && tabbedPane.isEnabled()) {
+            if (e.getKeyCode() == KeyEvent.VK_T && tabbedPane.getTabCount() < 10) {
+                addNewTab();
+            } else if (e.getKeyCode() == KeyEvent.VK_W && tabbedPane.getTabCount() > 1) {
+                tabbedPane.removeTabAt(tabbedPane.getSelectedIndex());
+            } else if (e.getKeyCode() == KeyEvent.VK_TAB && tabbedPane.getTabCount() > 1) {
+                tabbedPane.setSelectedIndex((tabbedPane.getSelectedIndex() + 1) % tabbedPane.getTabCount());
+            }
+        }
+        return false;
+    }
+
+    private void addNewTab() {
+        JEditorPane outputPane = new JEditorPane();
+        outputPane.setEditable(false);
+        outputPane.setContentType("text/html");
+        outputPane.setFont(tabbedPane.getFont());
+        outputPane.setBackground(new Color(0x303234));
+        JScrollPane scrollPane = new JScrollPane(outputPane);
+        tabbedPane.addTab(format("[%d] empty", tabbedPane.getTabCount() + 1), scrollPane);
+        tabbedPane.setSelectedComponent(scrollPane);
     }
 
     private void setApplicationIcon() {
@@ -238,6 +272,14 @@ public class JTodo extends JFrame {
         return html;
     }
 
+    private Optional<JEditorPane> getOutputPane() {
+        if (tabbedPane != null) {
+            return Optional.ofNullable((JScrollPane) tabbedPane.getSelectedComponent())
+                    .flatMap(pane -> Optional.ofNullable((JEditorPane) pane.getViewport().getView()));
+        }
+        return Optional.empty();
+    }
+
     public static void main(String[] args) {
         try {
             UIManager.put("Button.arc", 4);
@@ -251,7 +293,6 @@ public class JTodo extends JFrame {
     }
 
     private final class ScriptInitializationWorker extends SwingWorker<Void, String> {
-
         @Override
         protected Void doInBackground() throws Exception {
             publish("Initializing...");
@@ -265,12 +306,13 @@ public class JTodo extends JFrame {
 
         @Override
         protected void process(List<String> chunks) {
-            outputPane.setText(String.join("", chunks));
+            getOutputPane().ifPresent(pane -> pane.setText(String.join("", chunks)));
         }
 
         @Override
         protected void done() {
-            outputPane.setText(convertToHtml(stringWriter.toString(), true));
+            tabbedPane.setEnabled(true);
+            getOutputPane().ifPresent(pane -> pane.setText(convertToHtml(stringWriter.toString(), true)));
             executeButton.setEnabled(true);
             commandField.setEnabled(true);
             commandField.requestFocus();
