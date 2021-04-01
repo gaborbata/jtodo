@@ -67,6 +67,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
 
@@ -233,6 +234,7 @@ public class JTodo extends JFrame {
         outputPane.setContentType("text/html");
         outputPane.setFont(tabbedPane.getFont());
         outputPane.setBackground(new Color(0x303234));
+        outputPane.setBorder(new EmptyBorder(10, 10, 10, 10));
         JScrollPane scrollPane = new JScrollPane(outputPane);
         tabbedPane.addTab("empty", scrollPane);
         tabbedPane.setSelectedComponent(scrollPane);
