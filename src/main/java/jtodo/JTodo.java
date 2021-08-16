@@ -170,6 +170,8 @@ public class JTodo extends JFrame {
                 getOutputPane().ifPresent(pane -> pane.setText("repl is not supported in this frontend of todo-jsonl"));
             } else if ("samegame".equals(action)) {
                 SameGame.main(null);
+                tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), "empty");
+                getOutputPane().ifPresent(pane -> pane.setText(""));
             } else if ("eval".equals(action)) {
                 String expression = command.stream().skip(1).collect(Collectors.joining(" "));
                 String result = new Expression(expression).setPrecision(16).eval().toPlainString();
@@ -186,12 +188,15 @@ public class JTodo extends JFrame {
                         .concat(Stream.of("java.version", "java.vendor", "os.name")
                                 .map(attribute -> format("\u001B[36m%14s:\u001B[0m %s", attribute.replace(".", " "), System.getProperties().getProperty(attribute)))
                                 .collect(Collectors.joining("\n")));
-                getOutputPane()
-                        .ifPresent(pane -> pane.setText(convertToHtml(gemVersion + "\n\n" + envVersion, false)));
+                getOutputPane().ifPresent(pane -> pane.setText(convertToHtml(gemVersion + "\n\n" + envVersion, false)));
             } else {
                 Object commandArray = scriptingContainer.callMethod(scriptingContainer.get("Array"), "new", command);
                 scriptingContainer.callMethod(receiver, "execute", commandArray);
-                getOutputPane().ifPresent(pane -> pane.setText(convertToHtml(stringWriter.toString(), true)));
+                getOutputPane().ifPresent(pane -> {
+                    pane.setText(convertToHtml(stringWriter.toString(), true));
+                    pane.setSelectionStart(0);
+                    pane.setSelectionEnd(0);
+                });
             }
             if (!commandFieldText.isEmpty()) {
                 commandField.setSelectedItem(null);
@@ -206,8 +211,7 @@ public class JTodo extends JFrame {
                 commandField.getEditor().setItem("");
             }
         } catch (Exception e) {
-            getOutputPane()
-                    .ifPresent(pane -> pane.setText("ERROR: " + convertToHtml(String.valueOf(e.getMessage()), false)));
+            getOutputPane().ifPresent(pane -> pane.setText("ERROR: " + convertToHtml(String.valueOf(e.getMessage()), false)));
         }
     }
 
@@ -288,7 +292,7 @@ public class JTodo extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.put("Button.arc", 4);
-            FlatDarkLaf.install();
+            FlatDarkLaf.setup();
             JFrame.setDefaultLookAndFeelDecorated(true);
             UIManager.setLookAndFeel(new FlatDarkLaf());
         } catch (UnsupportedLookAndFeelException e) {
