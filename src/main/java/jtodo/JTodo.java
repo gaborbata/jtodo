@@ -292,7 +292,6 @@ public class JTodo extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.put("Button.arc", 4);
-            FlatDarkLaf.setup();
             JFrame.setDefaultLookAndFeelDecorated(true);
             UIManager.setLookAndFeel(new FlatDarkLaf());
         } catch (UnsupportedLookAndFeelException e) {

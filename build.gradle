@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.formdev:flatlaf:1.2'
+    compile 'com.formdev:flatlaf:1.5'
     compile 'org.jruby:jruby-complete:9.2.19.0'
     compile 'com.udojava:EvalEx:2.6'
 }
