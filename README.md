@@ -16,9 +16,9 @@ Requires Java 8 (or later).
 
 ## How to build
 
-Maven is required to build the application, with the following command:
+Maven or Gradle is required to build the application, with one the following commands:
 
-`mvn clean package`
+`mvn clean package`, `gradle clean build`
 
 ### Dependencies
 
