@@ -168,11 +168,13 @@ public class JTodo extends JFrame {
             String action = command.stream().findFirst().orElse("");
             if ("repl".equals(action)) {
                 getOutputPane().ifPresent(pane -> pane.setText("repl is not supported in this frontend of todo-jsonl"));
-            } else if ("game".equals(action) && command.size() == 2 && asList("1", "2").contains(command.get(1))) {
+            } else if ("game".equals(action) && command.size() == 2 && asList("1", "2", "3").contains(command.get(1))) {
                 if ("1".equals(command.get(1))) {
                     SameGame.main(null);
-                } else {
+                } else if ("2".equals(command.get(1))) {
                     BoxBot.main(null);
+                } else {
+                    Game2048.main(null);
                 }
                 tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), "empty");
                 getOutputPane().ifPresent(pane -> pane.setText(""));
