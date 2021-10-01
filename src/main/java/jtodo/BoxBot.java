@@ -234,7 +234,7 @@ public final class BoxBot extends JFrame implements KeyListener {
      */
     private BoxBot() {
         super("BoxBot");
-        setIconImage(BLOCK_GFX[5]);
+        setIconImage(BLOCK_GFX[BOX]);
         screenBuffer = new BufferedImage(TABLE_WIDTH * BLOCK_SIZE, TABLE_HEIGHT * BLOCK_SIZE, BufferedImage.TYPE_INT_RGB);
 
         table = new int[TABLE_WIDTH * TABLE_HEIGHT];
