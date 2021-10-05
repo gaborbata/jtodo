@@ -15,8 +15,18 @@
  */
 package jtodo;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -25,6 +35,7 @@ import java.util.List;
 
 /**
  * @author Konstantin Bulenkov
+ * @author Gabor Bata
  */
 public class Game2048 extends JPanel {
   private static final Color BG_COLOR = new Color(0xbbada0);
@@ -240,7 +251,7 @@ public class Game2048 extends JPanel {
     }
   }
 
-  private static void ensureSize(java.util.List<Tile> l, int s) {
+  private static void ensureSize(List<Tile> l, int s) {
     while (l.size() != s) {
       l.add(new Tile());
     }
@@ -278,7 +289,7 @@ public class Game2048 extends JPanel {
     int xOffset = offsetCoors(x);
     int yOffset = offsetCoors(y);
     g.setColor(tile.getBackground());
-    g.fillRoundRect(xOffset, yOffset, TILE_SIZE, TILE_SIZE, 14, 14);
+    g.fillRoundRect(xOffset, yOffset, TILE_SIZE, TILE_SIZE, 8, 8);
     g.setColor(tile.getForeground());
     final int size = value < 100 ? 36 : value < 1000 ? 32 : 24;
     final Font font = new Font(FONT_NAME, Font.BOLD, size);
@@ -337,7 +348,7 @@ public class Game2048 extends JPanel {
     }
 
     public Color getForeground() {
-      return value < 16 ? new Color(0x776e65) : new Color(0xf9f6f2);
+      return value < 8 ? new Color(0x776e65) : new Color(0xf9f6f2);
     }
 
     public Color getBackground() {
@@ -360,7 +371,7 @@ public class Game2048 extends JPanel {
 
   public static void main(String[] args) {
     JFrame game = new JFrame();
-    game.setTitle("2048 Game");
+    game.setTitle("2048");
     game.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     game.setSize(340, 400);
     game.setResizable(false);
