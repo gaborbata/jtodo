@@ -1,7 +1,7 @@
 /*
  * JTodo
  *
- * Copyright (c) 2020-2021 Gabor Bata
+ * Copyright (c) 2020-2022 Gabor Bata
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -168,16 +168,6 @@ public class JTodo extends JFrame {
             String action = command.stream().findFirst().orElse("");
             if ("repl".equals(action)) {
                 getOutputPane().ifPresent(pane -> pane.setText("repl is not supported in this frontend of todo-jsonl"));
-            } else if ("game".equals(action) && command.size() == 2 && asList("1", "2", "3").contains(command.get(1))) {
-                if ("1".equals(command.get(1))) {
-                    SameGame.main(null);
-                } else if ("2".equals(command.get(1))) {
-                    BoxBot.main(null);
-                } else {
-                    Game2048.main(null);
-                }
-                tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), "empty");
-                getOutputPane().ifPresent(pane -> pane.setText(""));
             } else if ("eval".equals(action)) {
                 String expression = command.stream().skip(1).collect(Collectors.joining(" "));
                 String result = new Expression(expression).setPrecision(16).eval().toPlainString();
@@ -243,7 +233,7 @@ public class JTodo extends JFrame {
         outputPane.setEditable(false);
         outputPane.setContentType("text/html");
         outputPane.setFont(tabbedPane.getFont());
-        outputPane.setBackground(new Color(0x303234));
+        outputPane.setBackground(new Color(0x242527));
         outputPane.setBorder(new EmptyBorder(10, 10, 10, 10));
         JScrollPane scrollPane = new JScrollPane(outputPane);
         tabbedPane.addTab("empty", scrollPane);
@@ -307,6 +297,7 @@ public class JTodo extends JFrame {
     }
 
     private final class ScriptInitializationWorker extends SwingWorker<Void, String> {
+
         @Override
         protected Void doInBackground() throws Exception {
             publish("Initializing...");

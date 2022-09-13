@@ -5,28 +5,24 @@ plugins {
 sourceCompatibility = '1.8'
 
 repositories {
-    mavenLocal()
     mavenCentral()
-    maven {
-        url = 'http://repo.maven.apache.org/maven2'
-    }
 }
 
 dependencies {
-    compile 'com.formdev:flatlaf:1.5'
-    compile 'org.jruby:jruby-complete:9.2.19.0'
-    compile 'com.udojava:EvalEx:2.6'
+    implementation 'com.formdev:flatlaf:1.5'
+    implementation 'org.jruby:jruby-complete:9.2.19.0'
+    implementation 'com.udojava:EvalEx:2.6'
 }
 
 jar {
-    baseName = 'jtodo'
-    version = '0.1-SNAPSHOT'
+    archiveBaseName = 'jtodo'
+    archiveVersion = '0.1-SNAPSHOT'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes('Main-Class': 'jtodo.JTodo')
     }
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
