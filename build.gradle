@@ -12,6 +12,7 @@ dependencies {
     implementation 'com.formdev:flatlaf:1.5'
     implementation 'org.jruby:jruby-complete:9.2.19.0'
     implementation 'com.udojava:EvalEx:2.6'
+    implementation 'com.vdurmont:emoji-java:5.1.1'
 }
 
 jar {

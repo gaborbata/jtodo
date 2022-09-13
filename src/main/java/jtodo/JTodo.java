@@ -70,6 +70,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
+import static com.vdurmont.emoji.EmojiParser.parseToUnicode;
+import static com.vdurmont.emoji.EmojiParser.parseToAliases;
+import static com.vdurmont.emoji.EmojiParser.FitzpatrickAction.REMOVE;
 
 /**
  * Experimental Java front-end for https://github.com/gaborbata/todo
@@ -162,8 +165,8 @@ public class JTodo extends JFrame {
     private void handleEvent(ActionEvent event) {
         try {
             stringWriter.getBuffer().setLength(0);
-            String commandFieldText = String.valueOf(commandField.getEditor().getItem()).trim();
-            tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), commandFieldText.isEmpty() ? ":active" : commandFieldText);
+            String commandFieldText = parseToUnicode(String.valueOf(commandField.getEditor().getItem()).trim());
+            tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), commandFieldText.isEmpty() ? ":active" : parseToAliases(commandFieldText, REMOVE));
             final List<String> command = commandFieldText.isEmpty() ? emptyList() : asList(commandFieldText.split("[\\s\\xa0]+"));
             String action = command.stream().findFirst().orElse("");
             if ("repl".equals(action)) {
@@ -195,14 +198,15 @@ public class JTodo extends JFrame {
                 });
             }
             if (!commandFieldText.isEmpty()) {
+                String cleanCommandFieldText = parseToAliases(commandFieldText, REMOVE);
                 commandField.setSelectedItem(null);
                 List<String> items = IntStream.range(0, commandField.getItemCount())
                         .mapToObj(commandField::getItemAt)
-                        .filter(item -> !item.equals(commandFieldText))
+                        .filter(item -> !item.equals(cleanCommandFieldText))
                         .limit(COMMAND_HISTORY_SIZE - 1)
                         .collect(Collectors.toList());
                 commandField.removeAllItems();
-                commandField.addItem(commandFieldText);
+                commandField.addItem(cleanCommandFieldText);
                 items.forEach(commandField::addItem);
                 commandField.getEditor().setItem("");
             }
@@ -274,6 +278,7 @@ public class JTodo extends JFrame {
         for (Map.Entry<String, String> entry : COLOR_CODES.entrySet()) {
             html = html.replace("\u001B[" + entry.getValue() + "m", "<font color='" + entry.getKey() + "'>");
         }
+        html = parseToAliases(html, REMOVE);
         return html;
     }
 
