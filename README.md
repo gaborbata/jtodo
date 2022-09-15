@@ -1,6 +1,6 @@
 # jtodo [![Java CI with Maven](https://github.com/gaborbata/jtodo/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/gaborbata/jtodo/actions/workflows/maven.yml)
 
-Experimental Java/JRuby front-end for [todo](https://github.com/gaborbata/todo)
+Experimental Java/JRuby front-end for [todo](https://github.com/gaborbata/todo) which supports tabs
 
 ![todo](https://raw.githubusercontent.com/gaborbata/todo/master/todo.gif)
 
@@ -13,6 +13,14 @@ On most platforms the application can be run with the following command:
 You can find the latest binaries under [releases](https://github.com/gaborbata/jtodo/releases).
 
 Requires Java 8 (or later).
+
+## Shortcut keys
+
+| Shortcut key | Description |
+| ------------ | ----------- |
+| `CTRL + T`   | Add new tab |
+| `CTRL + W`   | Close tab   |
+| `CTRL + Tab` | Change tab  |
 
 ## How to build
 
