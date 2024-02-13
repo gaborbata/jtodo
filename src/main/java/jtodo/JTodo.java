@@ -174,7 +174,7 @@ public class JTodo extends JFrame {
             } else if ("eval".equals(action)) {
                 String expression = command.stream().skip(1).collect(Collectors.joining(" "));
                 String result = new Expression(expression).setPrecision(16).eval().toPlainString();
-                getOutputPane().ifPresent(pane -> pane.setText(convertToHtml(result, false)));
+                getOutputPane().ifPresent(pane -> pane.setText(convertToHtml("> " + expression + "\n" + result, false)));
             } else if ("version".equals(action)) {
                 Object gemSpec = scriptingContainer.runScriptlet(PathType.CLASSPATH, "todo/todo.gemspec");
                 final String gemVersion = "\u001B[33mGem Specification\u001B[0m\n" + Stream.of("name", "version", "date", "authors", "homepage", "license")
@@ -255,18 +255,6 @@ public class JTodo extends JFrame {
         }
     }
 
-    private Font loadFont() {
-        Font font;
-        try {
-            InputStream fontStream = JTodo.class.getClassLoader().getResourceAsStream("font/RobotoMono-Medium.ttf");
-            font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont((float) FONT_SIZE);
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Could not load font: {0}", e.getMessage());
-            font = new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE);
-        }
-        return font;
-    }
-
     private String convertToHtml(String text, boolean convertUnicode) {
         String html = convertUnicode ? new String(text.getBytes(), StandardCharsets.UTF_8) : text;
         html = html.replace("&", "&amp;")
@@ -276,7 +264,7 @@ public class JTodo extends JFrame {
                 .replace("\u001B[0m", "</font>")
                 .replace(" ", "&nbsp;");
         for (Map.Entry<String, String> entry : COLOR_CODES.entrySet()) {
-            html = html.replace("\u001B[" + entry.getValue() + "m", "<font color='" + entry.getKey() + "'>");
+            html = html.replace("\u001B[" + entry.getValue() + "m", "<font style='color:" + entry.getKey() + ";white-space:nowrap'>");
         }
         html = parseToAliases(html, REMOVE);
         return html;
@@ -290,9 +278,25 @@ public class JTodo extends JFrame {
         return Optional.empty();
     }
 
+    private static Font loadFont() {
+        Font font;
+        try {
+            InputStream fontStream = JTodo.class.getClassLoader().getResourceAsStream("font/RobotoMono-Medium.ttf");
+            font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont((float) FONT_SIZE);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not load font: {0}", e.getMessage());
+            font = new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE);
+        }
+        return font;
+    }
+
     public static void main(String[] args) {
         try {
             UIManager.put("Button.arc", 4);
+            UIManager.put("TitlePane.unifiedBackground", false);
+            UIManager.put("TitlePane.background", new Color(0x242527).brighter());
+            UIManager.put("TitlePane.foreground", new Color(0xbdc3c7).darker());
+            UIManager.put("TitlePane.font", loadFont());
             JFrame.setDefaultLookAndFeelDecorated(true);
             UIManager.setLookAndFeel(new FlatDarkLaf());
         } catch (UnsupportedLookAndFeelException e) {
